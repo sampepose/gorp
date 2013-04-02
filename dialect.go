@@ -196,7 +196,7 @@ func (d PostgresDialect) BindVar(i int) string {
 }
 
 func (d PostgresDialect) InsertAutoIncr(exec SqlExecutor, insertSql string, params ...interface{}) (int64, error) {
-	rows, err := exec.query(insertSql, params...)
+	rows, err := exec.Query(insertSql, params...)
 	if err != nil {
 		return 0, err
 	}

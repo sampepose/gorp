@@ -531,8 +531,8 @@ type SqlExecutor interface {
 	Exec(query string, args ...interface{}) (sql.Result, error)
 	Select(results interface{}, query string,
 		args ...interface{}) error
-	query(query string, args ...interface{}) (*sql.Rows, error)
-	queryRow(query string, args ...interface{}) *sql.Row
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
 }
 
 // TraceOn turns on SQL statement logging for this DbMap.  After this is
@@ -848,12 +848,12 @@ func (m *DbMap) tableForPointer(ptr interface{}, checkPK bool) (*TableMap, refle
 	return t, elem, nil
 }
 
-func (m *DbMap) queryRow(query string, args ...interface{}) *sql.Row {
+func (m *DbMap) QueryRow(query string, args ...interface{}) *sql.Row {
 	m.trace(query, args)
 	return m.Db.QueryRow(query, args...)
 }
 
-func (m *DbMap) query(query string, args ...interface{}) (*sql.Rows, error) {
+func (m *DbMap) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	m.trace(query, args)
 	return m.Db.Query(query, args...)
 }
@@ -931,12 +931,12 @@ func (t *Transaction) Rollback() error {
 	return t.tx.Rollback()
 }
 
-func (t *Transaction) queryRow(query string, args ...interface{}) *sql.Row {
+func (t *Transaction) QueryRow(query string, args ...interface{}) *sql.Row {
 	t.dbmap.trace(query, args)
 	return t.tx.QueryRow(query, args...)
 }
 
-func (t *Transaction) query(query string, args ...interface{}) (*sql.Rows, error) {
+func (t *Transaction) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	t.dbmap.trace(query, args)
 	return t.tx.Query(query, args...)
 }
@@ -992,7 +992,7 @@ func SelectNullStr(e SqlExecutor, query string, args ...interface{}) (sql.NullSt
 }
 
 func selectVal(e SqlExecutor, holder interface{}, query string, args ...interface{}) error {
-	rows, err := e.query(query, args...)
+	rows, err := e.Query(query, args...)
 	if err != nil {
 		return err
 	}
@@ -1043,7 +1043,7 @@ func rawselect(m *DbMap, exec SqlExecutor, results interface{}, query string,
 	resultsValue := reflect.Indirect(reflect.ValueOf(results))
 
 	// Run the query
-	rows, err := exec.query(query, args...)
+	rows, err := exec.Query(query, args...)
 	if err != nil {
 		return err
 	}
@@ -1250,7 +1250,7 @@ func get(m *DbMap, exec SqlExecutor, i interface{},
 		dest[x] = target
 	}
 
-	row := exec.queryRow(plan.query, keys...)
+	row := exec.QueryRow(plan.query, keys...)
 	err = row.Scan(dest...)
 	if err != nil {
 		if err == sql.ErrNoRows {
