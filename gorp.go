@@ -64,8 +64,8 @@ type TypeConverter interface {
 	ToDb(val interface{}) (interface{}, error)
 
 	// FromDb returns a CustomScanner appropriate for this type. This will be used
-	// to hold values returned from SELECT queries.  
-	// 
+	// to hold values returned from SELECT queries.
+	//
 	// In particular the CustomScanner returned should implement a Binder
 	// function appropriate for the Go type you wish to convert the db value to
 	//
@@ -88,7 +88,7 @@ type CustomScanner struct {
 	Binder func(holder interface{}, target interface{}) error
 }
 
-// Bind is called automatically by gorp after Scan() 
+// Bind is called automatically by gorp after Scan()
 func (me CustomScanner) Bind() error {
 	return me.Binder(me.Holder, me.Target)
 }
@@ -898,6 +898,7 @@ func (t *Transaction) Exec(query string, args ...interface{}) (sql.Result, error
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 	return stmt.Exec(args...)
 }
 
