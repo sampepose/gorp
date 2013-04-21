@@ -171,8 +171,6 @@ type PersistentUser struct {
 }
 
 func TestPersistentUser(t *testing.T) {
-	var arr []*PersistentUser
-
 	dbmap := &DbMap{Db: connect(), Dialect: dialect}
 	dbmap.Exec("drop table if exists PersistentUser")
 	dbmap.TraceOn("", log.New(os.Stdout, "gorptest: ", log.Lmicroseconds))
@@ -199,7 +197,7 @@ func TestPersistentUser(t *testing.T) {
 		t.Errorf("%v!=%v", pu, pu2)
 	}
 
-	err = dbmap.Select(&arr, "select * from PersistentUser")
+	arr, err := dbmap.Select(PersistentUser{}, "select * from PersistentUser")
 	if err != nil {
 		panic(err)
 	}
@@ -364,7 +362,6 @@ func TestColumnProps(t *testing.T) {
 }
 
 func TestRawSelect(t *testing.T) {
-	var list []*InvoicePersonView
 	dbmap := initDbMap()
 	defer dbmap.DropTables()
 
@@ -379,7 +376,7 @@ func TestRawSelect(t *testing.T) {
 	query := "select i.Id InvoiceId, p.Id PersonId, i.Memo, p.FName " +
 		"from invoice_test i, person_test p " +
 		"where i.PersonId = p.Id"
-	rawselect(dbmap, &list, query)
+	list := rawselect(dbmap, InvoicePersonView{}, query)
 	if len(list) != 1 {
 		t.Errorf("len(list) != 1: %d", len(list))
 	} else if !reflect.DeepEqual(expected, list[0]) {
@@ -856,9 +853,10 @@ func rawexec(dbmap *DbMap, query string, args ...interface{}) sql.Result {
 	return res
 }
 
-func rawselect(dbmap *DbMap, i interface{}, query string, args ...interface{}) {
-	err := dbmap.Select(i, query, args...)
+func rawselect(dbmap *DbMap, i interface{}, query string, args ...interface{}) (rs []interface{}) {
+	rs, err := dbmap.Select(i, query, args...)
 	if err != nil {
 		panic(err)
 	}
+	return rs
 }
