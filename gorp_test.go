@@ -62,6 +62,10 @@ type WithStringPk struct {
 	Desc string
 }
 
+type WithOnlyPk struct {
+	Id int64
+}
+
 type CustomStringType string
 
 type TypeConversionExample struct {
@@ -667,6 +671,15 @@ func TestWithStringPk(t *testing.T) {
 	}
 }*/
 
+func TestWithOnlyPk(t *testing.T) {
+	dbmap := initDbMap()
+	defer dbmap.DropTables()
+
+	r1 := &WithOnlyPk{-1}
+	insert(dbmap, r1)
+	update(dbmap, r1)
+}
+
 func BenchmarkNativeCrud(b *testing.B) {
 	b.StopTimer()
 	dbmap := initDbMapBench()
@@ -777,6 +790,7 @@ func initDbMap() *DbMap {
 	dbmap.AddTableWithName(Person{}, "person_test").SetKeys(true, "Id")
 	dbmap.AddTableWithName(WithIgnoredColumn{}, "ignored_column_test").SetKeys(true, "Id")
 	dbmap.AddTableWithName(WithStringPk{}, "string_pk_test").SetKeys(false, "Id")
+	dbmap.AddTableWithName(WithOnlyPk{}, "only_pk_test").SetKeys(false, "Id")
 	dbmap.AddTableWithName(TypeConversionExample{}, "type_conv_test").SetKeys(true, "Id")
 	dbmap.TypeConverter = testTypeConverter{}
 	err := dbmap.CreateTables()
