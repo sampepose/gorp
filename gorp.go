@@ -1119,7 +1119,7 @@ func rawselect(m *DbMap, exec SqlExecutor, i interface{}, query string,
 
 	// Add results to one of these two slices.
 	var (
-		list       []interface{}
+		list       = make([]interface{}, 0)
 		sliceValue = reflect.Indirect(reflect.ValueOf(i))
 	)
 
@@ -1167,6 +1167,10 @@ func rawselect(m *DbMap, exec SqlExecutor, i interface{}, query string,
 		} else {
 			list = append(list, v.Interface())
 		}
+	}
+
+	if appendToSlice && sliceValue.IsNil() {
+		sliceValue.Set(reflect.MakeSlice(sliceValue.Type(), 0, 0))
 	}
 
 	return list, nil

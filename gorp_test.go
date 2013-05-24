@@ -207,6 +207,23 @@ func TestPersistentUser(t *testing.T) {
 	}
 }
 
+// Ensure that the slices containing SQL results are non-nil when the result set is empty.
+func TestReturnsNonNilSlice(t *testing.T) {
+	dbmap := initDbMap()
+	defer dbmap.DropTables()
+	noResultsSQL := "select * from invoice_test where id=99999"
+	var r1 []*Invoice
+	rawselect(dbmap, &r1, noResultsSQL)
+	if r1 == nil {
+		t.Errorf("r1==nil")
+	}
+
+	r2 := rawselect(dbmap, Invoice{}, noResultsSQL)
+	if r2 == nil {
+		t.Errorf("r2==nil")
+	}
+}
+
 func TestOverrideVersionCol(t *testing.T) {
 	dbmap := initDbMap()
 	dbmap.DropTables()
