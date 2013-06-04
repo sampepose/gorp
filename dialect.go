@@ -160,6 +160,8 @@ func (d PostgresDialect) ToSqlType(val reflect.Type, maxsize int, isAutoIncr boo
 		return "smallint"
 	case "NullableBytes":
 		return "bytea"
+	case "Time":
+		return "timestamp"
 	}
 
 	if maxsize < 1 {
